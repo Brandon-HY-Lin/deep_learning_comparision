@@ -27,7 +27,7 @@ def batch_norm_wrapper(inputs, is_training, decay = 0.999):
     offset = tf.Variable(tf.zeros([size]))
 
     r_mean = tf.Variable(tf.zeros([size]), trainable=False)
-    r_var = tf.Variable(tf.zeros([size]), trainable=False)
+    r_var = tf.Variable(tf.ones([size]), trainable=False)
 
     if is_training == True:
         batch_mean, batch_var = tf.nn.moments(inputs, [0])

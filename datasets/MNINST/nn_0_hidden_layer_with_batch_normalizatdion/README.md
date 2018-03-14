@@ -5,12 +5,12 @@ This work is modified from
 * Main program: [google's tutorial](https://www.tensorflow.org/versions/r1.1/get_started/mnist/beginners)
 
 # Without BN:
-('Final training accuracy:', [0.91680002])
-Accuracy: 0.9198
+('Final training accuracy:', [0.91759998])
+Accuracy: 0.9173
 
 # With BN: 
-('Final training accuracy:', [0.91680002])
-Accuracy: 0.9044
+('Final training accuracy:', [0.91610003])
+Accuracy: 0.8934
 
 License
 ----
