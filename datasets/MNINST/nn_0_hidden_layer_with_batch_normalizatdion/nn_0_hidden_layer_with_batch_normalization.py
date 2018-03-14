@@ -14,6 +14,39 @@ def bias_variable(shape, value=0.1):
     init = tf.constant(value=value, shape=shape)
     return tf.Variable(init, dtype=dtype)
 
+def batch_norm_wrapper(inputs, is_training, decay = 0.999):
+    # calculate running mean and var
+    # update running mean and var
+    # set up a depenceies barrier
+    # batch normalization
+
+    variance_epsilon = 1e-8
+    size = inputs.get_shape()[-1]
+
+    scale = tf.Variable(tf.ones([size]))
+    offset = tf.Variable(tf.zeros([size]))
+
+    r_mean = tf.Variable(tf.zeros([size]), trainable=False)
+    r_var = tf.Variable(tf.zeros([size]), trainable=False)
+
+    if is_training == True:
+        batch_mean, batch_var = tf.nn.moments(inputs, [0])
+        assign_mean = tf.assign(r_mean, 
+                                decay*r_mean + (1-decay)*batch_mean)
+                        
+        assign_var = tf.assign(r_var, 
+                               decay*r_var + (1-decay)*batch_var)
+
+        with tf.control_dependencies([assign_mean, assign_var]):
+            return tf.nn.batch_normalization(inputs, batch_mean, batch_var,
+                        offset=offset, scale=scale, 
+                        variance_epsilon=variance_epsilon)
+    else:
+        return tf.nn.batch_normalization(inputs, r_mean, r_var,
+                        offset=offset, scale=scale, 
+                        variance_epsilon=variance_epsilon)
+                        
+
 def build_graph(is_training):
     # build NN with 1 hidden layer. Activation function is Relu
     # return placeholders(x, y_) ,training tensor, accuracy tensor, output of last layer before softmax, tf.train.saver() 
@@ -24,7 +57,9 @@ def build_graph(is_training):
     # build last layer
     W = weight_variable(shape=[mnist.IMAGE_PIXELS, mnist.NUM_CLASSES])
     b = bias_variable(shape=[mnist.NUM_CLASSES])
-    y = tf.matmul(x, W) + b
+    y_fc1 = tf.matmul(x, W) + b
+
+    y = batch_norm_wrapper(y_fc1, is_training)
 
     # define cross entropy
     xentropy = tf.reduce_mean(
