@@ -13,7 +13,7 @@ Some part of the code is modified from
 * 3 Hidden layer with sigmoid activation function each
 * Each hidden layer has 100 activation neurons
 * Using GradientDescentOptimizer with learning rate=0.5
-* 50k epochs
+* 50k epochs, with 60 examples per mini-batch
 * Run time: 9min 39sec for batch normalization case
 
 # Log
