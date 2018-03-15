@@ -18,6 +18,9 @@ dtype = tf.float32
 def get_path_saved_model(prefix, suffix):
     return prefix + suffix + "/tmp-save"
 
+def get_path_summary(prefix, suffix):
+    return prefix + suffix + "/"
+
 def mkdir_if_not_exits(path):
     dir_path = os.path.dirname(path)
     if not os.path.exists(dir_path):
@@ -81,38 +84,58 @@ def build_graph(is_training, enable_bn):
     x = tf.placeholder(dtype, shape=[None, mnist.IMAGE_PIXELS])
     y_ = tf.placeholder(dtype, shape=[None, mnist.NUM_CLASSES])
 
-    # 1st hidden layer
-    W1 = weight_variable(shapes['h1'])
-    z1 = tf.matmul(x, W1)
-    bn1 = batch_norm_wrapper(z1, is_training, enable_bn)
-    l1 = activation(bn1)
+    with tf.name_scope("L1"):
+        # 1st hidden layer
+        W1 = weight_variable(shapes['h1'])
+        z1 = tf.matmul(x, W1)
+        bn1 = batch_norm_wrapper(z1, is_training, enable_bn)
+        l1 = activation(bn1)
+        
+        tf.summary.histogram("weights", W1)
+        tf.summary.histogram("activation", l1)
 
-    # 2nd hidden layer
-    W2 = weight_variable(shapes['h2'])
-    z2 = tf.matmul(l1, W2)
-    bn2 = batch_norm_wrapper(z2, is_training, enable_bn)
-    l2 = activation(bn2)
+    with tf.name_scope("L2"):
+        # 2nd hidden layer
+        W2 = weight_variable(shapes['h2'])
+        z2 = tf.matmul(l1, W2)
+        bn2 = batch_norm_wrapper(z2, is_training, enable_bn)
+        l2 = activation(bn2)
 
-    # 3rd hidden layer
-    W3 = weight_variable(shapes['h3'])
-    z3 = tf.matmul(l2, W3)
-    bn3 = batch_norm_wrapper(z3, is_training, enable_bn)
-    l3 = activation(bn3)
+        tf.summary.histogram("weights", W2)
+        tf.summary.histogram("activation", l2)
 
-    # output layer
-    W_out = weight_variable(shapes['output'])
-    y = tf.matmul(l3, W_out) 
+    with tf.name_scope("L3"):
+        # 3rd hidden layer
+        W3 = weight_variable(shapes['h3'])
+        z3 = tf.matmul(l2, W3)
+        bn3 = batch_norm_wrapper(z3, is_training, enable_bn)
+        l3 = activation(bn3)
 
-    loss = tf.reduce_mean(
-                tf.nn.softmax_cross_entropy_with_logits(labels=y_,
-                                                        logits=y)
-            )
+        tf.summary.histogram("weights", W3)
+        tf.summary.histogram("activation", l3)
 
-    lr = 0.5
-    train_step = tf.train.GradientDescentOptimizer(lr).minimize(loss)
+    with tf.name_scope("output_layer"):
+        # output layer
+        W_out = weight_variable(shapes['output'])
+        y = tf.matmul(l3, W_out) 
 
-    prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-    accuracy = tf.reduce_mean(tf.cast(prediction, dtype))
+        tf.summary.histogram("weights", W_out)
+
+    with tf.name_scope("loss"):
+        loss = tf.reduce_mean(
+                    tf.nn.softmax_cross_entropy_with_logits(labels=y_,
+                                                            logits=y)
+                )
+
+    with tf.name_scope("train"):
+        lr = 0.5
+        train_step = tf.train.GradientDescentOptimizer(lr).minimize(loss)
+
+    with tf.name_scope("prediction"):
+        prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+
+    with tf.name_scope("accuracy"):
+        accuracy = tf.reduce_mean(tf.cast(prediction, dtype))
 
     return (x, y_), train_step, accuracy, y, tf.train.Saver()
 
@@ -142,10 +165,13 @@ def main():
     experiment_settings = {'with_bn': True, 'without_bn': False}
 
     FLAGS_ = {  'batch_sz': 60,
-                'max_epochs': 50000,
+                #'max_epochs': 50000,
+                'max_epochs': 1000,
                 'print_period': 100,
+                'summary_period': 50,
                 'path_data_set': 'MNIST_data/',
                 'path_saved_model': './tmp/',
+                'path_summary': './tmp/log/',
             }
 
     history_acc_ = defaultdict(list)
@@ -165,11 +191,27 @@ def main():
 
         mkdir_if_not_exits(path_saved_model)
 
+        path_summary = get_path_summary( FLAGS_['path_summary'], title)
+
+        mkdir_if_not_exits(path_summary)
+
         with tf.Session() as sess:
+            merged_summary = tf.summary.merge_all()
+            writer = tf.summary.FileWriter(path_summary)
+            writer.add_graph(sess.graph)
+
             sess.run(tf.global_variables_initializer())
 
             for i in tqdm.tqdm(xrange(FLAGS_['max_epochs'])):
                 batch = data_set.train.next_batch(FLAGS_['batch_sz'])
+
+                if i % FLAGS_['summary_period'] == 0 or \
+                    (i+1) == FLAGS_['max_epochs']:
+
+                    s = sess.run(fetches=merged_summary, 
+                                feed_dict={x: batch[0], y_: batch[1]})
+
+                    writer.add_summary(s, i)
 
                 if i % FLAGS_['print_period'] == 0 or \
                     (i+1) == FLAGS_['max_epochs'] :
