@@ -11,11 +11,18 @@ from tensorflow.examples.tutorials.mnist import input_data, mnist
 import tqdm
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import os
 
 dtype = tf.float32
 
 def get_path_saved_model(prefix, suffix):
     return prefix + suffix + "/tmp-save"
+
+def mkdir_if_not_exits(path):
+    dir_path = os.path.dirname(path)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+  
 
 def weight_variable(shape, stddev=0.1):
     init = tf.truncated_normal(shape, stddev=stddev)
@@ -157,8 +164,7 @@ def main():
         path_saved_model = get_path_saved_model(
                                     FLAGS_['path_saved_model'], title)
 
-
-        print path_saved_model
+        mkdir_if_not_exits(path_saved_model)
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
