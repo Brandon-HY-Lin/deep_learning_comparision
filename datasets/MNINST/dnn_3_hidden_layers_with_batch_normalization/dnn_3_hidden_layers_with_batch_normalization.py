@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 
 dtype = tf.float32
 
+def get_path_saved_model(prefix, suffix):
+    return prefix + suffix + "/tmp-save"
+
 def weight_variable(shape, stddev=0.1):
     init = tf.truncated_normal(shape, stddev=stddev)
     return tf.Variable(init, dtype=dtype)
@@ -129,15 +132,14 @@ def main():
     # plot test accuracy history
 
     # {title: enable batch normalization}
-    #experiment_settings = {'with_bin': True, 'without_bn': False}
-    experiment_settings = {'with-bin': True}
+    experiment_settings = {'with_bn': True, 'without_bn': False}
 
     FLAGS_ = {  'batch_sz': 60,
                 #'max_epochs': 50000,
                 'max_epochs': 100,
                 'print_period': 100,
                 'path_data_set': 'MNIST_data/',
-                'path_saved_model': './tmp/tmp-save-',
+                'path_saved_model': './tmp/',
             }
 
     history_acc_ = defaultdict(list)
@@ -152,6 +154,11 @@ def main():
                             is_training=True, 
                             enable_bn=enable_bn
                         )
+        path_saved_model = get_path_saved_model(
+                                    FLAGS_['path_saved_model'], title)
+
+
+        print path_saved_model
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
@@ -176,7 +183,7 @@ def main():
                     (title, history_acc_[title][-1]) )
 
             # save model
-            saver.save(sess, FLAGS_['path_saved_model'] + title)
+            saver.save(sess, path_saved_model)
 
         # start testing
         tf.reset_default_graph()
@@ -186,7 +193,7 @@ def main():
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            saver.restore(sess, FLAGS_['path_saved_model'] + title)
+            saver.restore(sess, path_saved_model)
             acc = sess.run(fetches=[accuracy], 
                         feed_dict={x: data_set.test.images,
                                     y_: data_set.test.labels})
@@ -194,7 +201,7 @@ def main():
             print("testing accuracy of %s: %g" % 
                     (title, acc[0]))
 
-
+    # end of iteration
 
     # plot test accuracy history
     for title, _ in experiment_settings.items():
