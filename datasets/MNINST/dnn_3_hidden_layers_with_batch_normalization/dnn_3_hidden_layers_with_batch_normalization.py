@@ -142,8 +142,7 @@ def main():
     experiment_settings = {'with_bn': True, 'without_bn': False}
 
     FLAGS_ = {  'batch_sz': 60,
-                #'max_epochs': 50000,
-                'max_epochs': 100,
+                'max_epochs': 50000,
                 'print_period': 100,
                 'path_data_set': 'MNIST_data/',
                 'path_saved_model': './tmp/',
