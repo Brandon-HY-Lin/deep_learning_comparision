@@ -201,6 +201,9 @@ def main():
             print("testing accuracy of %s: %g" % 
                     (title, acc[0]))
 
+        # reset default graph before new iteration
+        tf.reset_default_graph()
+                
     # end of iteration
 
     # plot test accuracy history
