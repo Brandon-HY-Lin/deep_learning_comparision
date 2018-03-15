@@ -25,7 +25,8 @@ testing accuracy of with_bn: 0.98
 training accuracy of without_bn: 0.9769
 testing accuracy of without_bn: 0.9769
 ```
-
+# Package Info
+* tensorflow: Version: 1.3.0
 
 License
 ----
