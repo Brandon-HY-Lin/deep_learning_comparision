@@ -8,6 +8,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data, mnist
+from tensorflow.contrib.distributions import percentile
 import tqdm
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -30,6 +31,13 @@ def mkdir_if_not_exits(path):
 def weight_variable(shape, stddev=0.1):
     init = tf.truncated_normal(shape, stddev=stddev)
     return tf.Variable(init, dtype=dtype)
+
+def summary_percentiles(x, percents):
+
+    for p in percents:
+        name = "percentile_" + str(p)
+        tf.summary.scalar(name, percentile(x, p))
+
 
 def batch_norm_wrapper(x, is_training, enable_bn, decay=0.999):
     epsilon = 1e-8
@@ -113,6 +121,7 @@ def build_graph(is_training, enable_bn):
 
         tf.summary.histogram("weights", W3)
         tf.summary.histogram("activation", l3)
+        summary_percentiles(l3, [15, 50, 85])
 
     with tf.name_scope("output_layer"):
         # output layer
