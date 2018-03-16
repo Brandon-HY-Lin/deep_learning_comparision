@@ -25,6 +25,12 @@ testing accuracy of with_bn: 0.98
 training accuracy of without_bn: 0.9769
 testing accuracy of without_bn: 0.9769
 ```
+
+# Using Tensorboard
+You can inspect the histograms and percentiles using Tensorboard by typing following command.
+```sh
+$ tensorboard --logdir tmp/log/without_bn/ 
+```
 # Package Info
 * tensorflow: Version: 1.3.0
 
