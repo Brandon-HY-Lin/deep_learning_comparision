@@ -16,6 +16,88 @@ import os
 
 dtype = tf.float32
 
+class LineGraph(object):
+    def __init__(self):
+        self.lines = defaultdict()
+        self.history = defaultdict(list)
+
+    def reset_tensors(self):
+        self.lines = defaultdict()
+
+    def add_scalar(self, tensor, legend):
+        # legend: type is string
+        # use legend as index of line
+        # Note: override existing setting
+        self.lines[legend] = tensor
+
+    def add_summary(self, session, index, feed_dict):            
+        self.history['index'].append(index)
+
+        for line_name, line_tensor in self.lines.items():
+            data = session.run(fetches=line_tensor, feed_dict=feed_dict)
+            self.history[line_name].append(data)
+
+    def get_index(self):
+        return np.array(self.history['index'])
+
+    def plot(self, plt):
+        # plt: matplotlib.pyplot
+    
+        # iterate lines
+        #   draw line with index
+        #   show legend
+
+        for line_name, line in self.lines.items():
+            x = self.get_index()
+            y = np.array(self.history[line_name])
+            plt.plot(x, y, label=line_name)
+            plt.legend()
+
+
+class Figures(object):
+    def __init__(self):
+        self.figures = defaultdict(LineGraph)
+        return
+
+    def reset_tensors(self):
+        for fig_name, fig in self.figures:
+            fig.reset_tensors()
+
+    def add_scalar(self, tensor, legend, fig_name):
+        # fig: key of class LineGraph()
+        # legend: key of different lines
+        self.figures[fig_name].add_scalar(tensor, legend)
+        
+    def add_summary(self, session, fig_name, index, feed_dict):            
+        # iterate figures
+        #   iterate lines
+        #       evaluate tensor
+        #       record the value and index
+        self.figures[fig_name].add_summary(session, index, feed_dict)
+
+    def show(self, plt):
+        # plt: matplotlib.pyplot
+        for fig_name, f in self.figures.items():
+            # draw line graph
+            f.plot(plt)
+
+            # decorate the figure
+            plt.title(fig_name)
+            plt.show()
+
+
+figures = Figures() 
+
+def add_percentiles_to_graph(x, percentile_list, fig_name):
+    for p in percentile_list:
+        # create percentile tensor
+        p_tensor = percentile(x, p)
+
+        # add tensors to a figure with name=enable_bn
+        figures.add_scalar(tensor=p_tensor, 
+                         legend=str(p),
+                         fig_name=fig_name)
+
 def get_path_saved_model(prefix, suffix):
     return prefix + suffix + "/tmp-save"
 
@@ -78,7 +160,7 @@ def batch_norm_wrapper(x, is_training, enable_bn, decay=0.999):
     else:
         return x 
 
-def build_graph(is_training, enable_bn):
+def build_graph(is_training, enable_bn, title):
     # build graph with 3 hidden layers with 100 sigmoid activations each.
     # variables are initialized to small Gaussian values
 
@@ -121,7 +203,11 @@ def build_graph(is_training, enable_bn):
 
         tf.summary.histogram("weights", W3)
         tf.summary.histogram("activation", l3)
-        summary_percentiles(l3, [15, 50, 85])
+
+        percentile_list = [15, 50, 85]
+        summary_percentiles(l3, percentile_list)
+
+        add_percentiles_to_graph(l3, percentile_list, title)
 
     with tf.name_scope("output_layer"):
         # output layer
@@ -193,7 +279,8 @@ def main():
         # build graph
         (x, y_), train_step, accuracy, _, saver = build_graph( 
                             is_training=True, 
-                            enable_bn=enable_bn
+                            enable_bn=enable_bn,
+                            title=title
                         )
         path_saved_model = get_path_saved_model(
                                     FLAGS_['path_saved_model'], title)
@@ -222,6 +309,10 @@ def main():
 
                     writer.add_summary(s, i)
 
+                    figures.add_summary(session=sess, 
+                                    fig_name=title, index=i, 
+                                    feed_dict={x: batch[0], y_:batch[1]})
+
                 if i % FLAGS_['print_period'] == 0 or \
                     (i+1) == FLAGS_['max_epochs'] :
 
@@ -245,7 +336,8 @@ def main():
         tf.reset_default_graph()
 
         (x, y_), _, accuracy, y, saver = build_graph(is_training=False,
-                                                    enable_bn=enable_bn)
+                                                    enable_bn=enable_bn,
+                                                    title=title)
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
@@ -269,6 +361,8 @@ def main():
     
     plt.legend()
     plt.show()
+
+    figures.show(plt)
 
 if __name__ == '__main__':
     main()
