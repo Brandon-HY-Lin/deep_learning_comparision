@@ -1,7 +1,7 @@
 # MNIST: Batch Normalization  (DNN with 3 Hidden layer)
 
 This work is a reproduced work of Ioffe and Szegedy's paper [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167). Some part of the code is modified from
-* [R2RT's batch normalization tutorial](https://www.tensorflow.org/versions/r1.1/get_started/mnist/beginner://r2rt.com/implementing-batch-normalization-in-tensorflow.html)
+* [R2RT's batch normalization tutorial](https://r2rt.com/implementing-batch-normalization-in-tensorflow.html)
 
 # Results
 * Test accuracy with and without batch normalization (Each points represents 100 epochs)
