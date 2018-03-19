@@ -12,6 +12,9 @@ from tensorflow.examples.tutorials.mnist import input_data
 #   build accuracy graph
 #   build prediction graph
 
+#device_name = '/device:GPU:0'
+device_name = '/cpu:0'
+
 def weight_variable(shape, stddev=0.1):
     init = tf.truncated_normal(shape, stddev=stddev)
     return tf.Variable(init)
@@ -53,51 +56,52 @@ def main():
     # activation function
     f = tf.nn.relu
 
-    # define conv layer 1
-    #   conv
-    #   max pool
-    W_conv1 = weight_variable(filters_shape['conv1'])
-    b_conv1 = bias_variable([filters_shape['conv1'][-1]])
+    with tf.device(device_name):
+        # define conv layer 1
+        #   conv
+        #   max pool
+        W_conv1 = weight_variable(filters_shape['conv1'])
+        b_conv1 = bias_variable([filters_shape['conv1'][-1]])
 
-    h_conv1 = f(conv2d(x_image, W_conv1) + b_conv1)
-    h_pool1 = max_pool_2x2(h_conv1)
+        h_conv1 = f(conv2d(x_image, W_conv1) + b_conv1)
+        h_pool1 = max_pool_2x2(h_conv1)
 
-    # define conv layer 2
-    #   conv
-    #   max pool
-    W_conv2 = weight_variable(filters_shape['conv2'])
-    b_conv2 = bias_variable([filters_shape['conv2'][-1]])
+        # define conv layer 2
+        #   conv
+        #   max pool
+        W_conv2 = weight_variable(filters_shape['conv2'])
+        b_conv2 = bias_variable([filters_shape['conv2'][-1]])
 
-    h_conv2 = f(conv2d(h_pool1, W_conv2) + b_conv2)  
-    h_pool2 = max_pool_2x2(h_conv2) 
+        h_conv2 = f(conv2d(h_pool1, W_conv2) + b_conv2)  
+        h_pool2 = max_pool_2x2(h_conv2) 
 
-    # define hidden layer
-    W_fc1 = weight_variable(layers_size['fc1'])
-    b_fc1 = bias_variable([layers_size['fc1'][-1]])
+        # define hidden layer
+        W_fc1 = weight_variable(layers_size['fc1'])
+        b_fc1 = bias_variable([layers_size['fc1'][-1]])
 
-    h_pool2_flat = tf.reshape(h_pool2, [-1, layers_size['fc1'][0]])
-    h_fc1 = f(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+        h_pool2_flat = tf.reshape(h_pool2, [-1, layers_size['fc1'][0]])
+        h_fc1 = f(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
-    # define logits with dropout inputs
-    W_fc2 = weight_variable(layers_size['fc2'])
-    b_fc2 = bias_variable([layers_size['fc2'][-1]])
+        # define logits with dropout inputs
+        W_fc2 = weight_variable(layers_size['fc2'])
+        b_fc2 = bias_variable([layers_size['fc2'][-1]])
 
-    keep_prob = tf.placeholder(dtype)
-    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
-    y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
+        keep_prob = tf.placeholder(dtype)
+        h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+        y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
-    # define cross_entropy graph
-    cross_entropy = tf.reduce_mean(
-        tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv)
-    )
+        # define cross_entropy graph
+        cross_entropy = tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y_conv)
+        )
 
-    # define train optimizer tensor
-    lr=1e-4
-    train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
+        # define train optimizer tensor
+        lr=1e-4
+        train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
 
-    # define accuracy
-    prediction = tf.equal(tf.argmax(y_, 1), tf.argmax(y_conv, 1))
-    accuracy = tf.reduce_mean(tf.cast(prediction, dtype))
+        # define accuracy
+        prediction = tf.equal(tf.argmax(y_, 1), tf.argmax(y_conv, 1))
+        accuracy = tf.reduce_mean(tf.cast(prediction, dtype))
 
     # size of the training data set is 55k
     num_epochs = 20000 #20k
@@ -105,7 +109,7 @@ def main():
     keep_prob_train = 0.5
 
     # init shared variable
-    sess = tf.InteractiveSession()
+    sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
     sess.run(tf.global_variables_initializer())
 
     print_period = 100
@@ -115,14 +119,15 @@ def main():
         
         if i % print_period == 0:
             # print current training accuracy
-            train_accuracy = accuracy.eval(
+            train_accuracy = sess.run(fetches=[accuracy],
                     feed_dict={x: batch[0], y_: batch[1], keep_prob: 1.0}
                 )
 
-            print("step %d, accuracy %g" % (i, train_accuracy))
+            print("step %d, accuracy %g" % (i, train_accuracy[0]))
 
-        train_step.run(
-            feed_dict={x: batch[0], y_: batch[1], keep_prob: keep_prob_train}
+        sess.run(fetches=train_step,
+            feed_dict={x: batch[0], y_: batch[1], 
+                        keep_prob: keep_prob_train}
         )
 
     # print test accuracy
