@@ -114,7 +114,7 @@ def main():
 
     print_period = 100
 
-    for i in xrange(num_epochs):
+    for i in range(num_epochs):
         batch = mnist.train.next_batch(batch_sz)
         
         if i % print_period == 0:
@@ -131,9 +131,11 @@ def main():
         )
 
     # print test accuracy
-    print(
-        "test accuracy %g" % accuracy.eval(
+    acc = sess.run(fetches=[accuracy],
         feed_dict={x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+    
+    print(
+        "test accuracy %g" % acc[0]
     )
 
 if __name__ == '__main__':
