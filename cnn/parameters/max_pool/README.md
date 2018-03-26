@@ -1,24 +1,25 @@
-# Training Speed of SGD, Momentum, Nesterov SGD, RMSprop, and Adam
+# Max Pooling Parameters
 
-This work is inspired by [Alec Radford](https://twitter.com/AlecRad/media). His first [work](https://www.reddit.com/r/MachineLearning/comments/2gopfa/visualizing_gradient_optimization_techniques/cklhott/) was posted on Reddits on 2014. However, there is no Adam algorithm which was published on 2015. As a result, I I implemented this animation. 
+Comparison between 3 different parameters as shown below:
 
-Animation effects are referenced from
-  * [Louis Tiao's work](http://tiao.io/notes/visualizing-and-animating-optimization-algorithms-with-matplotlib/)
-### My reproduced work
-![N|Solid](https://github.com/Brandon-HY-Lin/neural_networks_for_machine_learning/blob/master/week_06/momentum_methods/saddle_animation_3d.gif?raw=true)
+ * Non-Overlapping
+    F2_S2_SAME: Filter Size = 2x2, stride=2x2, padding=SAME
 
-### Alec Radford's work
-![N|Solid](https://github.com/Brandon-HY-Lin/neural_networks_for_machine_learning/blob/master/week_06/momentum_methods/alec_radford_animation.gif?raw=true)
+ * Overlapping 
+    F3_S2_SAME: Filter Size = 3x3, stride=2x2, padding=SAME
+
+ * Overlapping with big filter (LeNet5 setting)
+    LeNet5_F5_S1_VALID: Filter Size = 5x5, stride=1x1, padding=VALID
+
+![N|Solid](https://github.com/Brandon-HY-Lin/deep_learning_comparision/blob/master/cnn/parameters/max_pool/conv_twice.png?raw=true)
+
+The first column is original MNIST image (digit 7). The 2nd column is image after max_pool filter. The 3rd column is image after 2 sucessive max_pool filters.
+
+The non-overlapping setting preserved more details. Moreever, when the filters increase, the image becomes more blur.
 
 ### Execution
 ```sh
-$ python saddle_class.py
-```
-
-### Saving GIF Animation
-Simply set variable IS_SAVE to True in the python file
-```python
-IS_SAVE=True
+$ python max_pool_parameters.py
 ```
 
 ### License

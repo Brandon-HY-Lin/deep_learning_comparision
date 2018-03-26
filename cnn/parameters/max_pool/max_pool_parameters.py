@@ -127,29 +127,29 @@ def main():
     print images.shape
 
     settings_ = defaultdict(list)
-    settings_['1-1: F3_S2_SAME'].append(
+    settings_['1-1: F2_S2_SAME'].append({'ksize':[1, 2, 2, 1], 
+                                    'strides':[1, 2, 2, 1],
+                                    'padding':'SAME'})
+
+    settings_['1-2: F2_S2_SAME x2'].append({'ksize':[1, 2, 2, 1], 
+                                    'strides':[1, 2, 2, 1],
+                                    'padding':'SAME'})
+
+    settings_['1-2: F2_S2_SAME x2'].append({'ksize':[1, 2, 2, 1], 
+                                    'strides':[1, 2, 2, 1],
+                                    'padding':'SAME'})
+
+    settings_['2-1: F3_S2_SAME'].append(
                                     {'ksize':[1, 3, 3, 1], 
                                     'strides':[1, 2, 2, 1],
                                     'padding':'SAME'})
 
-    settings_['1-2: F3_S2_SAME x2'].append(
+    settings_['2-2: F3_S2_SAME x2'].append(
                                     {'ksize':[1, 3, 3, 1], 
                                     'strides':[1, 2, 2, 1],
                                     'padding':'SAME'})
-    settings_['1-2: F3_S2_SAME x2'].append(
+    settings_['2-2: F3_S2_SAME x2'].append(
                                     {'ksize':[1, 3, 3, 1], 
-                                    'strides':[1, 2, 2, 1],
-                                    'padding':'SAME'})
-
-    settings_['2-1: F2_S2_SAME'].append({'ksize':[1, 2, 2, 1], 
-                                    'strides':[1, 2, 2, 1],
-                                    'padding':'SAME'})
-
-    settings_['2-2: F2_S2_SAME x2'].append({'ksize':[1, 2, 2, 1], 
-                                    'strides':[1, 2, 2, 1],
-                                    'padding':'SAME'})
-
-    settings_['2-2: F2_S2_SAME x2'].append({'ksize':[1, 2, 2, 1], 
                                     'strides':[1, 2, 2, 1],
                                     'padding':'SAME'})
 
