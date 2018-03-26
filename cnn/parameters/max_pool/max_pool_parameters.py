@@ -153,25 +153,9 @@ def main():
                                     'strides':[1, 2, 2, 1],
                                     'padding':'SAME'})
 
-    settings_['3-1: LeNet5_F5_S1_VALID'].append(
-                                    {'ksize':[1, 5, 5, 1], 
-                                    'strides':[1, 1, 1, 1],
-                                    'padding':'VALID'})
-
-    settings_['3-2: LeNet5_F5_S1_VALID x2'].append(
-                                    {'ksize':[1, 5, 5, 1], 
-                                    'strides':[1, 1, 1, 1],
-                                    'padding':'VALID'})
-    settings_['3-2: LeNet5_F5_S1_VALID x2'].append(
-                                    {'ksize':[1, 5, 5, 1], 
-                                    'strides':[1, 1, 1, 1],
-                                    'padding':'VALID'})
-
-
     img_width = mnist.IMAGE_SIZE
     img_height = mnist.IMAGE_SIZE
     color = 1
-
     
     tf.reset_default_graph()
     with tf.Graph().as_default() as g:
@@ -180,7 +164,6 @@ def main():
 
     image_sets['1-0: origin'] = images[0][:,:,0]
     image_sets['2-0: origin'] = images[0][:,:,0]
-    image_sets['3-0: origin'] = images[0][:,:,0]
     n_cols = 3
     plot_image_sets(image_sets, n_cols, img_width, img_height)
 
