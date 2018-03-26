@@ -17,6 +17,9 @@ The first column is original MNIST image (digit 7). The 2nd column is image afte
 
 The non-overlapping setting preserved more details. Moreever, when the filters increase, the image becomes more blur.
 
+### Further Reading
+[CS231n lecture note](http://cs231n.github.io/convolutional-networks/)
+
 ### Execution
 ```sh
 $ python max_pool_parameters.py
