@@ -35,8 +35,9 @@ def main():
                         build_graph(is_learning=True, enable_bn=True) 
 
     with tf.Session(graph=g_train) as sess:
-        training(loss, FLAGS.lr, data_set,
-                FLAGS.batch_size, FLAGS.max_step,
+        train(loss, FLAGS.lr, data_set,
+                FLAGS.batch_size, FLAGS.max_step, 
+                FLAGS.summary_period, FLAGS.print_period,
                 sess, FLAGS.model_dir, FLAGS.training_log_dir)
 
     with tf.Graph().as_default() as g_test:
@@ -45,8 +46,8 @@ def main():
                         build_graph(is_learning=False, enable_bn=True)
 
     with tf.Session(graph=g_test) as sess:
-        testing(accuracy, data_set,
-                sess, FLAGS.model_dir, FLAGS.testing_log_dir)
+        test(accuracy, data_set, 
+                saver, FLAGS.model_dir, sess)
 
 
 if __name__ == '__main__':
@@ -62,10 +63,6 @@ if __name__ == '__main__':
     parser.add_argument('--training_log_dir', type=str,
                         default='./log/train-',
                         help='Directory for storing training log')
-
-    parser.add_argument('--testing_log_dir', type=str,
-                        default='./log/test-',
-                        help='Directory for storing testing log')
 
     parser.add_argument('--max_step', type=int,
                         #default=20000,
@@ -84,6 +81,16 @@ if __name__ == '__main__':
                         #default="/device:GPU:0",
                         default="/cpu:0",
                         help="Choose CPU or GPU.")
+
+    parser.add_argument('--summary_period', type=int,
+                        #default=100,
+                        default=1,
+                        help='Sampling period of summary')
+
+    parser.add_argument('--print_period', type=int,
+                        #default=100,
+                        defatul=1,
+                        help='Period of printing log on bash')
 
     FLAGS, unparsed = parser.parse_known_args()
 
