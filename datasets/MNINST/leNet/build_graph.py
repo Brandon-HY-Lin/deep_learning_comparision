@@ -125,7 +125,7 @@ def build_graph(is_learning, enable_bn):
         tf.summary.scalar('loss', loss)
 
     with tf.name_scope('predict'):
-        predict = tf.equal(tf.argmax(y_out), tf.argmax(y_))
+        predict = tf.equal(tf.argmax(y_out, 1), tf.argmax(y_, 1))
 
     with tf.name_scope('accuracy'):
         accuracy = tf.reduce_mean(tf.cast(predict, dtype))
