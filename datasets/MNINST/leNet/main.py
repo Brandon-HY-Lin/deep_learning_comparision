@@ -3,6 +3,9 @@ from tensorflow.examples.tutorials.mnist import mnist, input_data
 import numpy as np
 import tqdm
 from build_graph import build_graph
+from test import test
+from train import train
+import argparse
 
 FLAGS=None
 
@@ -35,10 +38,10 @@ def main():
                         build_graph(is_learning=True, enable_bn=True) 
 
     with tf.Session(graph=g_train) as sess:
-        train(loss, FLAGS.lr, data_set,
-                FLAGS.batch_size, FLAGS.max_step, 
+        train(x, y_, loss, FLAGS.lr, accuracy,
+                data_set, FLAGS.batch_size, FLAGS.max_step, 
                 FLAGS.summary_period, FLAGS.print_period,
-                sess, FLAGS.model_dir, FLAGS.training_log_dir)
+                sess, saver, FLAGS.model_dir, FLAGS.training_log_dir)
 
     with tf.Graph().as_default() as g_test:
         with tf.device(FLAGS.device_name):
@@ -46,7 +49,7 @@ def main():
                         build_graph(is_learning=False, enable_bn=True)
 
     with tf.Session(graph=g_test) as sess:
-        test(accuracy, data_set, 
+        test(x, y_, accuracy, data_set, 
                 saver, FLAGS.model_dir, sess)
 
 
@@ -66,7 +69,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--max_step', type=int,
                         #default=20000,
-                        default=200,
+                        default=2,
                         help="Max epochs to run trainer.")
 
     parser.add_argument('--batch_size', type=int,
@@ -89,7 +92,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--print_period', type=int,
                         #default=100,
-                        defatul=1,
+                        default=1,
                         help='Period of printing log on bash')
 
     FLAGS, unparsed = parser.parse_known_args()

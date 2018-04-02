@@ -32,43 +32,44 @@
 #
 
 import tensorflow as tf
-import numpy as tf
+import numpy as np
+from tensorflow.examples.tutorials.mnist import mnist
 
 # Allocate tf.Variable for weight adn bias
 # Return W, b
-def conv_variables(shape_weight, dtype=tf.float32):
+def get_variables(shape_weight, dtype=tf.float32):
     W_init = tf.truncated_normal(shape_weight, stddev=0.1)
     W = tf.Variable(W_init, dtype)
 
-    b_init = tf.constant(0.1, [shape_weight[-1]])
+    b_init = tf.constant(0.1, shape=[shape_weight[-1]])
     b = tf.Variable(b_init, dtype)
 
     return W, b
 
 def conv2d(x, W, b, activation, padding='SAME'):
     x_conv = tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
-    return activation(tf.matmul(x_conv, W) + b)
+    return activation(x_conv + b)
 
 def max_pool_2x2(x):
     return tf.nn.max_pool(x, 
                         ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], 
                         padding='SAME')
 
-def build_graph(is_learning, enable_bn, SIZES):
+def build_graph(is_learning, enable_bn):
     dtype = tf.float32
     activation = tf.nn.tanh
 
     x = tf.placeholder(dtype, [None, mnist.IMAGE_PIXELS])
     y_ = tf.placeholder(dtype, [None, mnist.NUM_CLASSES])
 
-    x_image = tf.reshape(x, [-1, mnist.IMAGE_SIZE< mnist.IMAGE_SIZE, 1])
+    x_image = tf.reshape(x, [-1, mnist.IMAGE_SIZE, mnist.IMAGE_SIZE, 1])
 
     # C1
     with tf.name_scope('C1'):
-        W1, b1 = conv_variables([5, 5, 1, 6])
+        W1, b1 = get_variables([5, 5, 1, 6])
         h1 = conv2d(x_image, W1, b1, activation)
 
-        tf.summary.image('W1', W1)
+        tf.summary.image('W1', tf.reshape(W1, [-1, 5, 5, 1]))
         tf.summary.histogram('b1', b1)
 
     # S2
@@ -77,10 +78,10 @@ def build_graph(is_learning, enable_bn, SIZES):
 
     # C3
     with tf.name_scope('C3'):
-        W3, b3 = conv_variables([5, 5, 6, 16])
+        W3, b3 = get_variables([5, 5, 6, 16])
         h3 = conv2d(h2, W3, b3, activation, padding='VALID')
 
-        tf.summary.image('W3', W3)
+        tf.summary.image('W3', tf.reshape(W3, [-1, 5, 5, 1]))
 
     # S4
     with tf.name_scope('S4'):
@@ -88,22 +89,31 @@ def build_graph(is_learning, enable_bn, SIZES):
 
     # C5
     with tf.name_scope('C5'):
-        W5, b5 = conv_variables([5, 5, 16, 120])
+        W5, b5 = get_variables([5, 5, 16, 120])
         h5 = conv2d(h4, W5, b5, activation, padding='VALID')
 
-        tf.summary.image('W5', W5)
+        tf.summary.image('W5', tf.reshape(W5, [-1, 5, 5, 1]))
         tf.summary.histogram('b5', b5)
 
         h_flatten = tf.reshape(h5, [-1, 120])
 
     # F6
-    with tf.name_scope('C6'):
-        W6, b6 = fc_variables([120, 84])
+    with tf.name_scope('F6'):
+        W6, b6 = get_variables([120, 84])
         h6 = tf.matmul(h_flatten, W6) + b6
-        y_out = h6
 
         tf.summary.histogram('W6', W6)
         tf.summary.histogram('b6', b6)
+
+    # F7
+    with tf.name_scope('F7'):
+        W7, b7 = get_variables([84, 10])
+        h7 = tf.matmul(h6, W7) + b7
+        y_out = h7
+
+        tf.summary.histogram('W7', W7)
+        tf.summary.histogram('b7', b7)
+
 
     loss = tf.reduce_mean( 
                 tf.nn.softmax_cross_entropy_with_logits(
