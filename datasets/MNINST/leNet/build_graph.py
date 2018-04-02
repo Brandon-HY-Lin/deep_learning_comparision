@@ -57,7 +57,8 @@ def max_pool_2x2(x):
 
 def build_graph(is_learning, enable_bn):
     dtype = tf.float32
-    activation = tf.nn.tanh
+    #activation = tf.nn.tanh
+    activation = tf.nn.relu
 
     x = tf.placeholder(dtype, [None, mnist.IMAGE_PIXELS])
     y_ = tf.placeholder(dtype, [None, mnist.NUM_CLASSES])
@@ -69,8 +70,8 @@ def build_graph(is_learning, enable_bn):
         W1, b1 = get_variables([5, 5, 1, 6])
         h1 = conv2d(x_image, W1, b1, activation)
 
-        tf.summary.image('W1', tf.reshape(W1, [-1, 5, 5, 1]))
-        tf.summary.histogram('b1', b1)
+        tf.summary.image('W1', tf.reshape(W1, [-1, 5, 5, 1]), max_outputs=6)
+        #tf.summary.histogram('b1', b1)
 
     # S2
     with tf.name_scope('S2'):
@@ -81,7 +82,7 @@ def build_graph(is_learning, enable_bn):
         W3, b3 = get_variables([5, 5, 6, 16])
         h3 = conv2d(h2, W3, b3, activation, padding='VALID')
 
-        tf.summary.image('W3', tf.reshape(W3, [-1, 5, 5, 1]))
+        tf.summary.image('W3', tf.reshape(W3, [-1, 5, 5, 1]), max_outputs=97)
 
     # S4
     with tf.name_scope('S4'):
@@ -93,7 +94,7 @@ def build_graph(is_learning, enable_bn):
         h5 = conv2d(h4, W5, b5, activation, padding='VALID')
 
         tf.summary.image('W5', tf.reshape(W5, [-1, 5, 5, 1]))
-        tf.summary.histogram('b5', b5)
+        #tf.summary.histogram('b5', b5)
 
         h_flatten = tf.reshape(h5, [-1, 120])
 
@@ -102,8 +103,8 @@ def build_graph(is_learning, enable_bn):
         W6, b6 = get_variables([120, 84])
         h6 = tf.matmul(h_flatten, W6) + b6
 
-        tf.summary.histogram('W6', W6)
-        tf.summary.histogram('b6', b6)
+        #tf.summary.histogram('W6', W6)
+        #tf.summary.histogram('b6', b6)
 
     # F7
     with tf.name_scope('F7'):
@@ -111,16 +112,24 @@ def build_graph(is_learning, enable_bn):
         h7 = tf.matmul(h6, W7) + b7
         y_out = h7
 
-        tf.summary.histogram('W7', W7)
-        tf.summary.histogram('b7', b7)
+        #tf.summary.histogram('W7', W7)
+        #tf.summary.histogram('b7', b7)
 
 
-    loss = tf.reduce_mean( 
-                tf.nn.softmax_cross_entropy_with_logits(
-                            labels=y_, logits=y_out)
-                )
+    with tf.name_scope('loss'):
+        loss = tf.reduce_mean( 
+                    tf.nn.softmax_cross_entropy_with_logits(
+                                labels=y_, logits=y_out)
+                    )
 
-    predict = tf.equal(tf.argmax(y_out), tf.argmax(y_))
-    accuracy = tf.reduce_mean(tf.cast(predict, dtype))
+        tf.summary.scalar('loss', loss)
+
+    with tf.name_scope('predict'):
+        predict = tf.equal(tf.argmax(y_out), tf.argmax(y_))
+
+    with tf.name_scope('accuracy'):
+        accuracy = tf.reduce_mean(tf.cast(predict, dtype))
+
+        tf.summary.scalar('accuracy', accuracy)
 
     return (x, y_), loss, accuracy, tf.train.Saver()

@@ -60,24 +60,24 @@ if __name__ == '__main__':
                         help='Directory for storing input data.')
 
     parser.add_argument('--model_dir', type=str,
-                        default='./model/model-',
+                        default='./log/model',
                         help='Directory for saving/restoring model')
 
     parser.add_argument('--training_log_dir', type=str,
-                        default='./log/train-',
+                        default='./log/',
                         help='Directory for storing training log')
 
     parser.add_argument('--max_step', type=int,
                         #default=20000,
-                        default=2,
+                        default=300,
                         help="Max epochs to run trainer.")
 
     parser.add_argument('--batch_size', type=int,
-                        default=60,
+                        default=50,
                         help="Batch size for batch normalization.")
 
     parser.add_argument('--lr', type=float,
-                        default=0.5,
+                        default=1e-4,
                         help="Learning rate.")
 
     parser.add_argument('--device_name', type=str,
@@ -86,13 +86,13 @@ if __name__ == '__main__':
                         help="Choose CPU or GPU.")
 
     parser.add_argument('--summary_period', type=int,
-                        #default=100,
-                        default=1,
+                        default=100,
+                        #default=1,
                         help='Sampling period of summary')
 
     parser.add_argument('--print_period', type=int,
-                        #default=100,
-                        default=1,
+                        default=100,
+                        #default=1,
                         help='Period of printing log on bash')
 
     FLAGS, unparsed = parser.parse_known_args()

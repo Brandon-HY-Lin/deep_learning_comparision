@@ -22,7 +22,8 @@ def train(x, y_, loss, lr, accuracy,
     # show Graph on the web browser
     writer.add_graph(sess.graph)
 
-    train_step = tf.train.GradientDescentOptimizer(lr).minimize(loss)
+    #train_step = tf.train.GradientDescentOptimizer(lr).minimize(loss)
+    train_step = tf.train.AdamOptimizer(lr).minimize(loss)
 
     sess.run(tf.global_variables_initializer())
 
@@ -31,13 +32,14 @@ def train(x, y_, loss, lr, accuracy,
         x_batch = batch[0]
         y_batch = batch[1]
 
-        if i % summary_period == 0 or (i+1) >= max_step:
+        # tqdm starts from 1
+        if i % summary_period == 0 or i >= max_step:
             s = sess.run(fetches=merged_summary,
                     feed_dict={x: x_batch, y_: y_batch})
 
             writer.add_summary(s, i)
 
-        if i % print_period == 0 or (i+1) >= max_step:
+        if i % print_period == 0 or i >= max_step:
             acc = sess.run(fetches=accuracy,
                     feed_dict={x: x_batch, y_: y_batch})
 
