@@ -56,6 +56,10 @@ def max_pool_2x2(x):
                         padding='SAME')
 
 def build_graph(is_learning, enable_bn):
+    collection_train = 'train'
+    collection_all = 'all'
+    collection_layers = 'layers'
+
     dtype = tf.float32
     #activation = tf.nn.tanh
     activation = tf.nn.relu
@@ -69,31 +73,51 @@ def build_graph(is_learning, enable_bn):
     with tf.name_scope('C1'):
         W1, b1 = get_variables([5, 5, 1, 6])
         h1 = conv2d(x_image, W1, b1, activation)
+        x_conv = tf.nn.conv2d(x_image, W1, strides=[1, 1, 1, 1], padding='SAME')
 
-        tf.summary.image('W1', tf.reshape(W1, [-1, 5, 5, 1]), max_outputs=6)
+        tf.summary.image('W1', tf.reshape(W1, [-1, 5, 5, 1]), 
+                        max_outputs=6, collections=[collection_train])
         #tf.summary.histogram('b1', b1)
+
+        tf.summary.image('input', tf.reshape(x_image, [-1, 28, 28, 1]), 
+                            collections=[collection_layers])
+
+        tf.summary.image('h1', tf.transpose(h1, [3, 1, 2, 0]), 
+                            collections=[collection_layers])
+        tf.summary.image('x_conv', tf.transpose(x_conv, perm=[3, 1, 2, 0]), 
+                            max_outputs=6, collections=[collection_layers])
 
     # S2
     with tf.name_scope('S2'):
         h2 = max_pool_2x2(h1)
+        tf.summary.image('h2', tf.transpose(h2, [3, 1, 2, 0]), 
+                            collections=[collection_layers])
 
     # C3
     with tf.name_scope('C3'):
         W3, b3 = get_variables([5, 5, 6, 16])
         h3 = conv2d(h2, W3, b3, activation, padding='VALID')
 
-        tf.summary.image('W3', tf.reshape(W3, [-1, 5, 5, 1]), max_outputs=97)
+        tf.summary.image('W3', tf.reshape(W3, [-1, 5, 5, 1]), 
+                        max_outputs=97, collections=[collection_train])
+
+        tf.summary.image('h3', tf.transpose(h3, [3, 1, 2, 0]), 
+                            collections=[collection_layers])
 
     # S4
     with tf.name_scope('S4'):
         h4 = max_pool_2x2(h3)
+        tf.summary.image('h4', tf.transpose(h4, [3, 1, 2, 0]), 
+                            collections=[collection_layers])
 
     # C5
     with tf.name_scope('C5'):
         W5, b5 = get_variables([5, 5, 16, 120])
         h5 = conv2d(h4, W5, b5, activation, padding='VALID')
 
-        tf.summary.image('W5', tf.reshape(W5, [-1, 5, 5, 1]))
+        tf.summary.image('W5', tf.reshape(W5, [-1, 5, 5, 1]),
+                        collections=[collection_train])
+
         #tf.summary.histogram('b5', b5)
 
         h_flatten = tf.reshape(h5, [-1, 120])
@@ -122,7 +146,8 @@ def build_graph(is_learning, enable_bn):
                                 labels=y_, logits=y_out)
                     )
 
-        tf.summary.scalar('loss', loss)
+        tf.summary.scalar('loss', loss, 
+                            collections=[collection_all])
 
     with tf.name_scope('predict'):
         predict = tf.equal(tf.argmax(y_out, 1), tf.argmax(y_, 1))
@@ -130,6 +155,7 @@ def build_graph(is_learning, enable_bn):
     with tf.name_scope('accuracy'):
         accuracy = tf.reduce_mean(tf.cast(predict, dtype))
 
-        tf.summary.scalar('accuracy', accuracy)
+        tf.summary.scalar('accuracy', accuracy, 
+                            collections=[collection_all])
 
     return (x, y_), loss, accuracy, tf.train.Saver()
