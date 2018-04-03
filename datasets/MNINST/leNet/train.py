@@ -29,8 +29,13 @@ def train(x, y_, loss, lr, accuracy,
 
     for i in tqdm.tqdm(range(max_step)):
         batch = data_set.train.next_batch(batch_size) 
-        x_batch = batch[0]
-        y_batch = batch[1]
+        #x_batch = batch[0]
+        #y_batch = batch[1]
+
+        encoded = np.argmax(batch[1], 1)
+        index_digit = np.logical_or(encoded== 8, encoded== 9)
+        x_batch = batch[0][index_digit][:]
+        y_batch = batch[1][index_digit][:]
 
         # tqdm starts from 1
         if i % summary_period == 0 or i >= max_step:
