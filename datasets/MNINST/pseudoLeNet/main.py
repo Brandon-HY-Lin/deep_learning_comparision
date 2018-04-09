@@ -39,7 +39,7 @@ def main():
 
     with tf.Session(graph=g_train) as sess:
         train(x, y_, loss, FLAGS.lr, accuracy,
-                data_set, FLAGS.batch_size, FLAGS.max_step, 
+                data_set, FLAGS.batch_size, FLAGS.max_steps, 
                 FLAGS.summary_period, FLAGS.print_period,
                 sess, saver, FLAGS.model_dir, FLAGS.training_log_dir)
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
                         default='./log/',
                         help='Directory for storing training log')
 
-    parser.add_argument('--max_step', type=int,
+    parser.add_argument('--max_steps', type=int,
                         #default=20000,
                         default=300,
                         help="Max epochs to run trainer.")

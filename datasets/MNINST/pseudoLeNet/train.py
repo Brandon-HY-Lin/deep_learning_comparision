@@ -15,7 +15,12 @@ def train(x, y_, loss, lr, accuracy,
             summary_period, print_period,
             sess, saver, model_dir, training_log_dir):
 
-    merged_summary = tf.summary.merge_all()
+    collection_train='train'
+    collection_all='all'
+    summary_train = tf.summary.merge_all(collection_train)
+    summary_all = tf.summary.merge_all(collection_all)
+
+    merged_summary = tf.summary.merge([summary_train, summary_all])
 
     writer = tf.summary.FileWriter(training_log_dir)
 
