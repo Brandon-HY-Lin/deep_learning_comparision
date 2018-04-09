@@ -38,7 +38,8 @@ def train(x, y_, loss, lr, accuracy,
         #y_batch = batch[1]
 
         encoded = np.argmax(batch[1], 1)
-        index_digit = np.logical_or(encoded== 8, encoded== 9)
+        #index_digit = np.logical_or(encoded== 8, encoded== 9)
+        index_digit = (encoded== 7)
         x_batch = batch[0][index_digit][:]
         y_batch = batch[1][index_digit][:]
 
