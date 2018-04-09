@@ -75,7 +75,7 @@ def build_graph(is_learning, enable_bn):
         h1 = conv2d(x_image, W1, b1, activation)
         x_conv = tf.nn.conv2d(x_image, W1, strides=[1, 1, 1, 1], padding='SAME')
 
-        tf.summary.image('W1', tf.reshape(W1, [-1, 5, 5, 1]), 
+        tf.summary.image('W1', tf.transpose(W1, [3, 0, 1, 2]), 
                         max_outputs=6, collections=[collection_train])
         #tf.summary.histogram('b1', b1)
 
@@ -98,7 +98,9 @@ def build_graph(is_learning, enable_bn):
         W3, b3 = get_variables([5, 5, 6, 16])
         h3 = conv2d(h2, W3, b3, activation, padding='VALID')
 
-        tf.summary.image('W3', tf.reshape(W3, [-1, 5, 5, 1]), 
+        tf.summary.image('W3', tf.reshape(
+                                tf.transpose(W3, [3, 0, 1, 2]), 
+                                [-1, 5, 5, 1]), 
                         max_outputs=97, collections=[collection_train])
 
         tf.summary.image('h3', tf.transpose(h3, [3, 1, 2, 0]), 
@@ -115,7 +117,9 @@ def build_graph(is_learning, enable_bn):
         W5, b5 = get_variables([5, 5, 16, 120])
         h5 = conv2d(h4, W5, b5, activation, padding='VALID')
 
-        tf.summary.image('W5', tf.reshape(W5, [-1, 5, 5, 1]),
+        tf.summary.image('W5', tf.reshape(
+                                    tf.transpose(W5, [3, 0, 1, 2]),
+                                    [-1, 5, 5, 1]),
                         collections=[collection_train])
 
         #tf.summary.histogram('b5', b5)
