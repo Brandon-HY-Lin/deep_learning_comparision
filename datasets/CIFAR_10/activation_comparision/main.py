@@ -17,8 +17,8 @@ import argparse
 FLAGS=None
 
 def main():
-    activations = {'relu': tf.nn.relu, 'tanh': tf.nn.tanh}
-    #activations = {'tanh': tf.nn.tanh}
+    #activations = {'relu': tf.nn.relu, 'tanh': tf.nn.tanh}
+    activations = {'tanh': tf.nn.tanh}
     #activations = {'relu': tf.nn.relu}
         
     X_train, Y_train, label_names = get_data_set('train')
@@ -37,6 +37,8 @@ def main():
                 job_dir,
                 FLAGS.device_name, FLAGS.log_period)
     
+        tf.reset_default_graph()
+
         test(X_test, Y_test, 
                 activation,
                 job_dir, FLAGS.device_name)
@@ -75,7 +77,7 @@ if __name__ == '__main__':
 
     # if batch size= 128, a full-batch equals 390 mini-batch steps
     parser.add_argument('--log_period', type=int,
-                        default=100,
+                        default=200,
                         #default=5,
                         help='Period for writing log.')
 

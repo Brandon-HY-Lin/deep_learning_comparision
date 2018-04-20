@@ -44,21 +44,17 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y, dtype=tf.float32):
     return (x, y_)
 
 def create_cost(y_out, labels):
-    with tf.variable_scope('cost'):
-        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
                 logits=y_out, labels=labels
             ))
 
     return cost
 
 def create_accuracy(y_out, labels):
-    with tf.variable_scope('accuracy'):
-        predict = \
+    predict = \
             tf.equal(tf.argmax(y_out, axis=1), tf.argmax(labels, axis=1))
 
-        accuracy = tf.reduce_mean(tf.cast(predict, tf.float32))
-
-    return accuracy
+    return tf.reduce_mean(tf.cast(predict, tf.float32))
 
 def get_variables(shape, dtype=tf.float32):
     W_init = tf.truncated_normal(shape, stddev=0.1)
@@ -99,6 +95,7 @@ def forward_propagation(X_img, activation):
         M2 = max_pool_2x2(A2)
 
         M2_flatten = tf.layers.Flatten()(M2)
+        #M2_flatten = tf.reshape(M2, [-1, 8*8*64])
 
     with tf.variable_scope('fc3'):
         W3, b3 = get_variables([8*8*64, 384])
@@ -130,13 +127,13 @@ def build_model(activation, is_learning, enable_bn, device_name):
         x_img = tf.reshape(x, [-1, n_H0, n_W0, n_C0])
 
         y_out = forward_propagation(x_img, activation)
+        cost = create_cost(y_out, y_)
+        accuracy = create_accuracy(y_out, y_)
 
-        with tf.variable_scope('cost'):
-            cost = create_cost(y_out, y_)
-            tf.summary.scalar('cost', cost)
+    with tf.variable_scope('cost'):
+        tf.summary.scalar('cost', cost)
 
-        with tf.variable_scope('accuracy'):
-            accuracy = create_accuracy(y_out, y_)
-            tf.summary.scalar('accuracy', accuracy)
+    with tf.variable_scope('accuracy'):
+        tf.summary.scalar('accuracy', accuracy)
 
     return (x, y_), y_out, cost, accuracy, tf.train.Saver()

@@ -20,7 +20,7 @@
 
 import tensorflow as tf
 import numpy as np
-import tqdm
+#import tqdm
 
 from model import build_model
 
@@ -44,15 +44,23 @@ def train(X_data, Y_data,
 
         sess.run(tf.global_variables_initializer())
 
-        for i in tqdm.tqdm(range(train_steps)):
-            i_start = i * batch_size
-            i_end = (i+1) * batch_size
-    
-            x_batch = X_data[i_start: i_end]
-            y_batch = Y_data[i_start: i_end]
+        max_index = X_data.shape[0] // batch_size
+
+        #for i in tqdm.tqdm(range(train_steps)):
+        for i in range(train_steps):
+            index = i % max_index
+            i_start = index * batch_size
+            i_end = (index+1) * batch_size
+
+            if index + 1 < max_index: 
+                x_batch = X_data[i_start: i_end]
+                y_batch = Y_data[i_start: i_end]
+            else:
+                x_batch = X_data[i_start:]
+                y_batch = Y_data[i_start:]
     
             # tqdm starts from 1
-            if (i % log_period) == 0 or i >= train_steps:
+            if (i % log_period) == 0 or (i+1) >= train_steps:
                 s = sess.run( fetches = merged_summary, 
                             feed_dict={x: x_batch, y_: y_batch})
     
