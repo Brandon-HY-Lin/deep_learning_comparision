@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # diverge: 0.1, 10e-3
     parser.add_argument('--learning_rate', type=float,
-                        default=10e-4,
+                        default=1.05*10e-4,
                         help='Learning rate.')
 
     parser.add_argument('--train_batch_size', type=int,
