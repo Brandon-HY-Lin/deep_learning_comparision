@@ -17,9 +17,9 @@ import argparse
 FLAGS=None
 
 def main():
-    #activations = {'relu': tf.nn.relu, 'tanh': tf.nn.tanh}
+    activations = {'relu': tf.nn.relu, 'tanh': tf.nn.tanh}
     #activations = {'tanh': tf.nn.tanh}
-    activations = {'relu': tf.nn.relu}
+    #activations = {'relu': tf.nn.relu}
         
     X_train, Y_train, label_names = get_data_set('train')
     X_test, Y_test, _ = get_data_set('test')
@@ -37,9 +37,9 @@ def main():
                 job_dir,
                 FLAGS.device_name, FLAGS.log_period)
     
-        #test(X_test, Y_test, 
-        #        activation,
-        #        job_dir, FLAGS.device_name)
+        test(X_test, Y_test, 
+                activation,
+                job_dir, FLAGS.device_name)
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -48,8 +48,8 @@ if __name__ == '__main__':
     # it takes: ~390 steps to simulate full-batch if batch size=128
     # AlexNet paper shows it needs 35 full-batch steps to achieve 25% error.
     parser.add_argument('--train_steps', type=int,
-                        #default=15000,
-                        default=40,
+                        default=15000,
+                        #default=40,
                         help='Max epochs to run trainer.')
 
     # diverge: 0.1, 10e-3
@@ -69,14 +69,14 @@ if __name__ == '__main__':
                                 """)
 
     parser.add_argument('--device_name', type=str,
-                        #default='/device:GPU:0',
-                        default='/cpu:0',
+                        default='/device:GPU:0',
+                        #default='/cpu:0',
                         help='Choose CPU or GPU.')
 
     # if batch size= 128, a full-batch equals 390 mini-batch steps
     parser.add_argument('--log_period', type=int,
-                        #default=100,
-                        default=5,
+                        default=100,
+                        #default=5,
                         help='Period for writing log.')
 
     FLAGS, unparsed = parser.parse_known_args()
