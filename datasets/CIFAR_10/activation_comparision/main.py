@@ -17,8 +17,8 @@ import argparse
 FLAGS=None
 
 def main():
-    #activations = {'relu': tf.nn.relu, 'tanh': tf.nn.tanh}
-    activations = {'tanh': tf.nn.tanh}
+    activations = {'relu': tf.nn.relu, 'tanh': tf.nn.tanh}
+    #activations = {'tanh': tf.nn.tanh}
     #activations = {'relu': tf.nn.relu}
         
     X_train, Y_train, label_names = get_data_set('train')
@@ -37,11 +37,11 @@ def main():
                 job_dir,
                 FLAGS.device_name, FLAGS.log_period)
     
-        tf.reset_default_graph()
+        #tf.reset_default_graph()
 
-        test(X_test, Y_test, 
-                activation,
-                job_dir, FLAGS.device_name)
+        #test(X_test, Y_test, 
+        #        activation,
+        #        job_dir, FLAGS.device_name)
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

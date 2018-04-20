@@ -50,11 +50,11 @@ def create_cost(y_out, labels):
 
     return cost
 
-def create_accuracy(y_out, labels):
+def create_error_rate(y_out, labels):
     predict = \
             tf.equal(tf.argmax(y_out, axis=1), tf.argmax(labels, axis=1))
 
-    return tf.reduce_mean(tf.cast(predict, tf.float32))
+    return 1.0 - tf.reduce_mean(tf.cast(predict, tf.float32))
 
 def get_variables(shape, dtype=tf.float32):
     W_init = tf.truncated_normal(shape, stddev=0.1)
@@ -128,12 +128,12 @@ def build_model(activation, is_learning, enable_bn, device_name):
 
         y_out = forward_propagation(x_img, activation)
         cost = create_cost(y_out, y_)
-        accuracy = create_accuracy(y_out, y_)
+        error_rate = create_error_rate(y_out, y_)
 
     with tf.variable_scope('cost'):
         tf.summary.scalar('cost', cost)
 
-    with tf.variable_scope('accuracy'):
-        tf.summary.scalar('accuracy', accuracy)
+    with tf.variable_scope('error_rate'):
+        tf.summary.scalar('error_rate', error_rate)
 
-    return (x, y_), y_out, cost, accuracy, tf.train.Saver()
+    return (x, y_), y_out, cost, error_rate, tf.train.Saver()

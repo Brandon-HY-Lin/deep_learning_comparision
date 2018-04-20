@@ -31,7 +31,7 @@ def train(X_data, Y_data,
             device_name, log_period):
 
     with tf.Graph().as_default() as t_graph:
-        (x, y_), _, cost, accuracy, saver = \
+        (x, y_), _, cost, error_rate, saver = \
                 build_model(activation, is_learning=True, 
                             enable_bn=True, device_name = device_name)
 
@@ -66,10 +66,10 @@ def train(X_data, Y_data,
     
                 writer.add_summary(s, i)
 
-                acc, c = sess.run( fetches=[accuracy, cost],
+                acc, c = sess.run( fetches=[error_rate, cost],
                             feed_dict={x: x_batch, y_: y_batch})
 
-                print('Step %d, accuracy = %g, cost = %g' % (i, acc, c))
+                print('Step %d, error_rate = %g, cost = %g' % (i, acc, c))
     
     
             sess.run(fetches=optimizer,
