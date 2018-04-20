@@ -118,7 +118,7 @@ def forward_propagation(X_img, activation):
 
     return y_out
 
-def build_model(activation, is_learning, enable_bn):
+def build_model(activation, is_learning, enable_bn, device_name):
     n_H0 = 32
     n_W0 = 32
     n_C0 = 3
@@ -126,16 +126,17 @@ def build_model(activation, is_learning, enable_bn):
 
     (x, y_) = create_placeholders(n_H0, n_W0, n_C0, n_y)
 
-    x_img = tf.reshape(x, [-1, n_H0, n_W0, n_C0])
+    with tf.device(device_name):
+        x_img = tf.reshape(x, [-1, n_H0, n_W0, n_C0])
 
-    y_out = forward_propagation(x_img, activation)
+        y_out = forward_propagation(x_img, activation)
 
-    with tf.variable_scope('cost'):
-        cost = create_cost(y_out, y_)
-        tf.summary.scalar('cost', cost)
+        with tf.variable_scope('cost'):
+            cost = create_cost(y_out, y_)
+            tf.summary.scalar('cost', cost)
 
-    with tf.variable_scope('accuracy'):
-        accuracy = create_accuracy(y_out, y_)
-        tf.summary.scalar('accuracy', accuracy)
+        with tf.variable_scope('accuracy'):
+            accuracy = create_accuracy(y_out, y_)
+            tf.summary.scalar('accuracy', accuracy)
 
     return (x, y_), y_out, cost, accuracy, tf.train.Saver()

@@ -16,10 +16,10 @@ def test(X_data, Y_data,
             job_dir, device_name):
 
     with tf.Graph().as_default() as v_graph:
-        with tf.device(device_name): 
-            (x, y_), _, cost, accuracy, saver = \
-                        build_model(activation, \
-                                is_learning=False, enable_bn = True) 
+        (x, y_), _, cost, accuracy, saver = \
+                    build_model(activation, \
+                                is_learning=False, enable_bn = True, 
+                                device_name = device_name) 
 
     with tf.Session(graph = v_graph) as sess:
         saver.restore(sess, job_dir)

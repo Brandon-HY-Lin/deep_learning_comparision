@@ -31,9 +31,9 @@ def train(X_data, Y_data,
             device_name, log_period):
 
     with tf.Graph().as_default() as t_graph:
-        with tf.device(device_name):
-            (x, y_), _, cost, accuracy, saver = \
-                build_model(activation, is_learning=True, enable_bn=True)
+        (x, y_), _, cost, accuracy, saver = \
+                build_model(activation, is_learning=True, 
+                            enable_bn=True, device_name = device_name)
 
     with tf.Session(graph=t_graph) as sess:
         merged_summary = tf.summary.merge_all()
