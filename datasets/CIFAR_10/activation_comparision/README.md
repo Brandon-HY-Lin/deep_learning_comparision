@@ -36,6 +36,18 @@ The setting of my architecture is listed below:
 * Memory for parameters:
 1,764,048 x (4 bytes) = 7,056,192 (bytes) ~= 6.7 (Mb)
 
+* Training Platform
+AWS g2.2xlarge (GRID K520)
+memoryClockRate(GHz): 0.797
+
+* Run Time:
+
+| | Time|
+|------|------|
+|real|	20m42.930s|
+|user|	9m26.044s|
+|sys|	6m9.016s|
+
 ### Picking Learning Rate 
 Learning rate is 1.05e-4 for Adam optimizer. The green line (learning rate = 1.05e-4) has better accuracy on first 100 epochs. Notice that, gray line (2.39e-5) also has good result. However, other learning rates that are closed to (2.39e-5) has bad performance. As a result, I still choose green one (1.05e-4).
 
