@@ -17,7 +17,7 @@ $ tensorboard --logdir log_aws
 ```
 
 ### Architecture
-The setting of my architecture is listed below:
+The hyper parameters of CNN architecture is from [tensorflow's example](https://github.com/tensorflow/models/tree/master/tutorials/image/cifar10). The detail settings are listed below:
 
 |Layer| Name | Settings| Output Size| # Parameters|
 | ------ | ------ |------ | ------ | ------ | 
